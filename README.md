@@ -1,6 +1,11 @@
 # Proyecto_entornos
 
 Repositorio para el proyecto de entornos.
+---
+## Integrantes:
+* Andres Felipe Martinez
+* Harold Esteban Duran
+* Luige Alejandro Velasco
 
 ## Imagen del esquma inicial de la Base de Datos:
 
@@ -8,4 +13,4 @@ Repositorio para el proyecto de entornos.
 
 
 ---
-por: Andres Felipe Martinez, Harold Esteban Duran y Luige Alejandro Velasco
+
