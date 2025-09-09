@@ -2,7 +2,7 @@
 
 Repositorio para el proyecto de entornos.
 
-Imagen Base de Datos:
+## Imagen del esquma inicial de la Base de Datos:
 
 ![Base_Datos](neondb-db.jpeg)
 
