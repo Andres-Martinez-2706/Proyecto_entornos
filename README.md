@@ -1,4 +1,4 @@
-# 📅 Proyecto_entornos
+# 📅 Proyecto entornos - Aplicacion de Citas
 
 Repositorio para el proyecto de entornos.
 ---
