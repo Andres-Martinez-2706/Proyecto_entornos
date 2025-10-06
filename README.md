@@ -10,7 +10,7 @@ Repositorio para el proyecto de entornos.
 * **Harold Esteban Duran**
 * **Luige Alejandro Velasco**
 
-## 💾 Imagen del esquma inicial de la Base de Datos:
+## 💾 Imagen del esquma inicial de la Base de Datos
 
 ![Base_Datos](neondb-db.jpeg)
 
