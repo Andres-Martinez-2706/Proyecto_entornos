@@ -11,4 +11,6 @@ import uis.edu.co.appointments.models.Appointment;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByUserIdAndDate(Long userId, LocalDate date);
+    List<Appointment> findByUserId(Long userId);
+
 }

@@ -177,4 +177,8 @@ public class AppointmentService {
             }
         }
     }
+    public List<Appointment> findByUserId(Long userId) {
+        return appointmentRepository.findByUserId(userId);
+    }
+
 }
