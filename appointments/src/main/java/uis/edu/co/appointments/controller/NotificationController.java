@@ -3,14 +3,18 @@ package uis.edu.co.appointments.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import uis.edu.co.appointments.models.Notification;
 import uis.edu.co.appointments.service.NotificationService;
@@ -49,5 +53,17 @@ public class NotificationController {
     @DeleteMapping("/{id}")
     public void deleteNotification(@PathVariable Long id) {
         notificationService.delete(id);
+    }
+
+    @PatchMapping("/{id}/read")
+    public ResponseEntity<Notification> markAsRead(@PathVariable Long id) {
+        var opt = notificationService.findById(id);
+        if (opt.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Notificación no encontrada");
+        }
+        Notification n = opt.get();
+        n.setIsRead(true);
+        Notification updated = notificationService.save(n);
+        return ResponseEntity.ok(updated);
     }
 }
