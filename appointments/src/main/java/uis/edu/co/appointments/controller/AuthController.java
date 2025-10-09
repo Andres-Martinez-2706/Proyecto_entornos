@@ -1,5 +1,6 @@
 package uis.edu.co.appointments.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import uis.edu.co.appointments.dto.ApiResponse;
 import uis.edu.co.appointments.models.User;
 import uis.edu.co.appointments.security.JwtUtils;
 import uis.edu.co.appointments.security.UserDetailsImpl;
@@ -30,25 +33,58 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), userDetails.getRoleName()));
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            
+            JwtResponse response = new JwtResponse(
+                    jwt,
+                    userDetails.getId(),
+                    userDetails.getUsername(),
+                    userDetails.getFullName(),
+                    userDetails.getRoleName()
+            );
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error("Credenciales inválidas"));
+        }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        User user = new User();
-        user.setFullName(request.getFullName());
-        user.setEmail(request.getEmail());
-        user.setPasswordHash(request.getPassword());
-        User saved = userService.register(user);
-        return ResponseEntity.ok("Usuario registrado: " + saved.getEmail());
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        try {
+            if (userService.existsByEmail(request.getEmail())) {
+                return ResponseEntity.badRequest()
+                        .body(ApiResponse.error("El correo ya está registrado"));
+            }
+            
+            User user = new User();
+            user.setFullName(request.getFullName());
+            user.setEmail(request.getEmail());
+            user.setPasswordHash(request.getPassword());
+            
+            User saved = userService.register(user);
+            
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(ApiResponse.success("Usuario registrado exitosamente. Por favor inicia sesión.", 
+                            new UserBasicInfo(saved.getId(), saved.getEmail(), saved.getFullName())));
+            
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Error al registrar usuario: " + e.getMessage()));
+        }
     }
 }
 
@@ -75,16 +111,38 @@ class RegisterRequest {
 
 class JwtResponse {
     private final String token;
+    private final Long userId;
     private final String email;
+    private final String fullName;
     private final String role;
 
-    public JwtResponse(String token, String email, String role) {
+    public JwtResponse(String token, Long userId, String email, String fullName, String role) {
         this.token = token;
+        this.userId = userId;
         this.email = email;
+        this.fullName = fullName;
         this.role = role;
     }
 
     public String getToken() { return token; }
+    public Long getUserId() { return userId; }
     public String getEmail() { return email; }
+    public String getFullName() { return fullName; }
     public String getRole() { return role; }
+}
+
+class UserBasicInfo {
+    private final Long id;
+    private final String email;
+    private final String fullName;
+
+    public UserBasicInfo(Long id, String email, String fullName) {
+        this.id = id;
+        this.email = email;
+        this.fullName = fullName;
+    }
+
+    public Long getId() { return id; }
+    public String getEmail() { return email; }
+    public String getFullName() { return fullName; }
 }

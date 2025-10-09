@@ -39,6 +39,26 @@ public class Notification {
     @Column(name = "is_read", nullable = false)
     private Boolean isRead = false;
 
+    @Column(length = 50)
+    private String type; 
+
+    @Column(columnDefinition = "TEXT")
+    private String metadata; 
+
+    @Column(name = "scheduled_for")
+    private LocalDateTime scheduledFor; 
+
+    @Column(name = "is_sent", nullable = false)
+    private Boolean isSent = false; 
+
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    public NotificationType getNotificationType() {
+        return NotificationType.fromString(this.type);
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.type = notificationType != null ? notificationType.name() : null;
+    }
 }

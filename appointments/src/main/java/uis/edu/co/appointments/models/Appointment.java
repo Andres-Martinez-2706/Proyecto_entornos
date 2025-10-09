@@ -58,7 +58,20 @@ public class Appointment {
     private LocalTime endTime;
 
     @Column(nullable = false, length = 50)
-    private String status = "Pendiente";
+    private String status = "Pendiente"; // Pendiente, Confirmada, Cancelada, Terminada
+
+    @Column(name = "admin_observation", columnDefinition = "TEXT")
+    private String adminObservation;
+
+    @Column(nullable = false)
+    private Boolean deleted = false;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "cancelled_by")
+    private User cancelledBy;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -66,7 +79,6 @@ public class Appointment {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // Relación con notificaciones
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Notification> notifications;
 
