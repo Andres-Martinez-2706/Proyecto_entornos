@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Notificación de cita</title>
+  </head>
+  <body style="font-family: 'Segoe UI', Arial, sans-serif; background:#f7f9fc; margin:0; padding:20px;">
+    <div style="max-width:600px; margin: auto;">
+      <div style="background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,0.08);">
+        <div th:style="'background:' + ${headerColor} + '; color:#fff; padding:16px; text-align:center;'">
+          <h2 style="margin:0;" th:text="${tituloEmoji + ' ' + titulo}">📅 Notificación</h2>
+        </div>
+        <div style="padding:18px; color:#333;">
+          <p>Hola <strong th:text="${nombre}">Usuario</strong>,</p>
+          <p style="margin-top:8px;" th:text="${mensajePrincipal}">Mensaje principal</p>
+          <table style="width:100%; margin-top:12px; border-collapse:collapse;">
+            <tr>
+              <td style="padding:8px; border:1px solid #eee;"><strong>Fecha</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${fecha}">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #eee;"><strong>Hora</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${hora}">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #eee;"><strong>Título</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${tituloCita}">-</td>
+            </tr>
+            <tr th:if="${observacion != null and !observacion.isEmpty()}">
+              <td style="padding:8px; border:1px solid #eee;"><strong>Observación</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${observacion}">-</td>
+            </tr>
+          </table>
+          <p style="margin-top:14px; color:#666; font-size:13px;">Si no solicitaste este correo, ignóralo. Gracias por usar el sistema.</p>
+        </div>
+        <div style="background:#f1f5f9; padding:10px; text-align:center; color:#6b7280; font-size:12px;">
+          © 2025 Sistema de Citas
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

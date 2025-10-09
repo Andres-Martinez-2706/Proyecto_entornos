@@ -121,22 +121,32 @@ public class NotificationSchedulerService {
         for (Notification notification : pending) {
             try {
                 User user = notification.getUser();
+                Appointment appointment = notification.getAppointment();
                 String subject = "Recordatorio de cita";
                 String message = notification.getMessage();
 
-                // Enviar email
-                emailService.sendEmail(user.getEmail(), subject, message);
+                // Enviar email con plantilla
+                emailService.sendAppointmentEmail(
+                    user.getEmail(),
+                    subject,
+                    user.getFullName(),
+                    appointment.getTitle(),
+                    appointment.getDate().toString(),
+                    appointment.getStartTime() + " - " + appointment.getEndTime(),
+                    message,
+                    null,
+                    "reminder"
+                );
 
                 // Marcar como enviada
                 notificationService.markAsSent(notification.getId());
 
                 logger.info("Notificación enviada: ID={}, Usuario={}", 
-                           notification.getId(), user.getEmail());
+                        notification.getId(), user.getEmail());
 
             } catch (Exception e) {
                 logger.error("Error enviando notificación ID {}: {}", 
                             notification.getId(), e.getMessage());
-                // No marcamos como enviada para reintentarlo en el próximo ciclo
             }
         }
 

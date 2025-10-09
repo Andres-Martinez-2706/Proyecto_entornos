@@ -137,8 +137,20 @@ public class AppointmentService {
         notificationService.save(notification);
 
         // 7) Enviar email inmediato (no debe causar rollback si falla)
+        // 7) Enviar email inmediato con plantilla HTML
         try {
-            emailService.sendEmail(user.getEmail(), subject, text);
+            String emailType = isNew ? "created" : "modified";
+            emailService.sendAppointmentEmail(
+                user.getEmail(),
+                subject,
+                user.getFullName(),
+                saved.getTitle(),
+                saved.getDate().toString(),
+                saved.getStartTime() + " - " + saved.getEndTime(),
+                text,
+                null,
+                emailType
+            );
             logger.info("Email enviado a {}", user.getEmail());
         } catch (Exception e) {
             logger.warn("No se pudo enviar email a {}: {}", user.getEmail(), e.getMessage());
@@ -208,8 +220,19 @@ public class AppointmentService {
         notificationService.save(notification);
 
         // Enviar email inmediato
+        // Enviar email inmediato con plantilla
         try {
-            emailService.sendEmail(user.getEmail(), subject, text);
+            emailService.sendAppointmentEmail(
+                user.getEmail(),
+                subject,
+                user.getFullName(),
+                saved.getTitle(),
+                saved.getDate().toString(),
+                saved.getStartTime() + " - " + saved.getEndTime(),
+                "Tu cita ha sido modificada por un administrador.",
+                adminObservation,
+                "modified"
+            );
             logger.info("Email de modificación admin enviado a {}", user.getEmail());
         } catch (Exception e) {
             logger.warn("Error enviando email a {}: {}", user.getEmail(), e.getMessage());
@@ -254,8 +277,19 @@ public class AppointmentService {
         notificationService.save(notification);
 
         // Enviar email
+        // Enviar email con plantilla
         try {
-            emailService.sendEmail(user.getEmail(), subject, text);
+            emailService.sendAppointmentEmail(
+                user.getEmail(),
+                subject,
+                user.getFullName(),
+                appt.getTitle(),
+                appt.getDate().toString(),
+                appt.getStartTime() + " - " + appt.getEndTime(),
+                text,
+                null,
+                "cancelled"
+            );
             logger.info("Email de cancelación enviado a {}", user.getEmail());
         } catch (Exception e) {
             logger.warn("Error enviando email a {}: {}", user.getEmail(), e.getMessage());
@@ -310,8 +344,19 @@ public class AppointmentService {
         notificationService.save(notification);
 
         // Enviar email
+        // Enviar email con plantilla
         try {
-            emailService.sendEmail(user.getEmail(), subject, text);
+            emailService.sendAppointmentEmail(
+                user.getEmail(),
+                subject,
+                user.getFullName(),
+                appt.getTitle(),
+                appt.getDate().toString(),
+                appt.getStartTime() + " - " + appt.getEndTime(),
+                "Tu cita ha sido cancelada por un administrador.",
+                adminObservation,
+                "cancelled"
+            );
             logger.info("Email de cancelación admin enviado a {}", user.getEmail());
         } catch (Exception e) {
             logger.warn("Error enviando email a {}: {}", user.getEmail(), e.getMessage());
