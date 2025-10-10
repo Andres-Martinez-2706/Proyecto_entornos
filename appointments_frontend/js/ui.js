@@ -1,0 +1,430 @@
+/**
+ * UI - Gestión de interfaz y navegación
+ */
+
+const UI = {
+    /**
+     * Inicializar sidebar
+     */
+    initSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        if (!sidebar || !sidebarToggle) return;
+
+        // Toggle sidebar
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.toggle('active');
+            }
+        });
+
+        // Cerrar sidebar al hacer clic en overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+            });
+        }
+
+        // Cerrar sidebar al hacer clic en un link (solo en móvil)
+        const navItems = sidebar.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.remove('active');
+                    }
+                }
+            });
+        });
+
+        // Cerrar sidebar automáticamente al cambiar de tamaño de pantalla
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                if (sidebarOverlay) {
+                    sidebarOverlay.classList.remove('active');
+                }
+            }
+        });
+    },
+
+    /**
+     * Actualizar badge de notificaciones
+     */
+    async updateNotificationBadge() {
+        try {
+            const result = await API.getUnreadCount();
+            const badge = document.getElementById('notificationBadge');
+            
+            if (badge && result && result.count !== undefined) {
+                if (result.count > 0) {
+                    badge.textContent = result.count > 99 ? '99+' : result.count;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        } catch (error) {
+            console.error('Error al actualizar badge de notificaciones:', error);
+        }
+    },
+
+    /**
+     * Inicializar modales
+     */
+    initModals() {
+        // Cerrar modales con botón X
+        const closeButtons = document.querySelectorAll('.modal-close');
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modalId = btn.getAttribute('data-modal');
+                this.closeModal(modalId);
+            });
+        });
+
+        // Cerrar modales con botones que tienen data-modal
+        const modalButtons = document.querySelectorAll('[data-modal]');
+        modalButtons.forEach(btn => {
+            if (!btn.classList.contains('modal-close')) {
+                btn.addEventListener('click', () => {
+                    const modalId = btn.getAttribute('data-modal');
+                    this.closeModal(modalId);
+                });
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeModal(modal.id);
+                }
+            });
+        });
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const activeModal = document.querySelector('.modal.active');
+                if (activeModal) {
+                    this.closeModal(activeModal.id);
+                }
+            }
+        });
+    },
+
+    /**
+     * Abrir modal
+     */
+    openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    },
+
+    /**
+     * Cerrar modal
+     */
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    },
+
+    /**
+     * Mostrar mensaje de error
+     */
+    showError(elementId, message) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+    },
+
+    /**
+     * Limpiar mensaje de error
+     */
+    clearError(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = '';
+            element.style.display = 'none';
+        }
+    },
+
+    /**
+     * Mostrar mensaje de éxito
+     */
+    showSuccess(elementId, message) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+    },
+
+    /**
+     * Limpiar mensaje de éxito
+     */
+    clearSuccess(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = '';
+            element.style.display = 'none';
+        }
+    },
+
+    /**
+     * Mostrar loading state
+     */
+    showLoading(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.style.display = 'block';
+        }
+    },
+
+    /**
+     * Ocultar loading state
+     */
+    hideLoading(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.style.display = 'none';
+        }
+    },
+
+    /**
+     * Mostrar empty state
+     */
+    showEmpty(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.style.display = 'block';
+        }
+    },
+
+    /**
+     * Ocultar empty state
+     */
+    hideEmpty(elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.style.display = 'none';
+        }
+    },
+
+    /**
+     * Formatear fecha
+     */
+    formatDate(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        return date.toLocaleDateString('es-ES', options);
+    },
+
+    /**
+     * Formatear hora
+     */
+    formatTime(timeString) {
+        if (!timeString) return '-';
+        return timeString.substring(0, 5); // HH:MM
+    },
+
+    /**
+     * Formatear fecha y hora completa
+     */
+    formatDateTime(dateTimeString) {
+        if (!dateTimeString) return '-';
+        const date = new Date(dateTimeString);
+        const dateOptions = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+        };
+        const timeOptions = {
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return `${date.toLocaleDateString('es-ES', dateOptions)} a las ${date.toLocaleTimeString('es-ES', timeOptions)}`;
+    },
+
+    /**
+     * Formatear fecha relativa (hace X tiempo)
+     */
+    formatRelativeTime(dateTimeString) {
+        if (!dateTimeString) return '-';
+        
+        const date = new Date(dateTimeString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'Ahora mismo';
+        if (diffMins < 60) return `Hace ${diffMins} min`;
+        if (diffHours < 24) return `Hace ${diffHours} h`;
+        if (diffDays < 7) return `Hace ${diffDays} d`;
+        
+        return this.formatDate(dateTimeString);
+    },
+
+    /**
+     * Obtener clase CSS según estado de cita
+     */
+    getAppointmentStatusClass(status) {
+        const statusMap = {
+            'Pendiente': 'Pendiente',
+            'Confirmada': 'Confirmada',
+            'Terminada': 'Terminada',
+            'Cancelada': 'Cancelada'
+        };
+        return statusMap[status] || 'Pendiente';
+    },
+
+    /**
+     * Obtener emoji según estado de cita
+     */
+    getAppointmentStatusEmoji(status) {
+        const emojiMap = {
+            'Pendiente': '⏳',
+            'Confirmada': '✅',
+            'Terminada': '✔️',
+            'Cancelada': '❌'
+        };
+        return emojiMap[status] || '📅';
+    },
+
+    /**
+     * Obtener color según tipo de notificación
+     */
+    getNotificationTypeClass(type) {
+        const typeMap = {
+            'ADMIN_MODIFICATION': 'admin',
+            'ADMIN_CANCELLATION': 'admin',
+            'REMINDER_DAY': 'reminder',
+            'REMINDER_HOUR': 'reminder',
+            'SYSTEM': 'system'
+        };
+        return typeMap[type] || 'system';
+    },
+
+    /**
+     * Obtener texto legible según tipo de notificación
+     */
+    getNotificationTypeText(type) {
+        const textMap = {
+            'ADMIN_MODIFICATION': 'Modificación del admin',
+            'ADMIN_CANCELLATION': 'Cancelación del admin',
+            'REMINDER_DAY': 'Recordatorio',
+            'REMINDER_HOUR': 'Recordatorio',
+            'SYSTEM': 'Sistema'
+        };
+        return textMap[type] || 'Notificación';
+    },
+
+    /**
+     * Truncar texto
+     */
+    truncateText(text, maxLength = 100) {
+        if (!text) return '';
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    },
+
+    /**
+     * Escapar HTML para prevenir XSS
+     */
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+
+    /**
+     * Confirmar acción
+     */
+    confirm(message) {
+        return window.confirm(message);
+    },
+
+    /**
+     * Mostrar alerta
+     */
+    alert(message) {
+        window.alert(message);
+    },
+
+    /**
+     * Deshabilitar botón
+     */
+    disableButton(button, text = 'Procesando...') {
+        if (button) {
+            button.disabled = true;
+            button.dataset.originalText = button.textContent;
+            button.textContent = text;
+        }
+    },
+
+    /**
+     * Habilitar botón
+     */
+    enableButton(button) {
+        if (button) {
+            button.disabled = false;
+            if (button.dataset.originalText) {
+                button.textContent = button.dataset.originalText;
+            }
+        }
+    },
+
+    /**
+     * Scroll suave hacia arriba
+     */
+    scrollToTop() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+};
+
+// ==================== INICIALIZACIÓN GLOBAL ====================
+document.addEventListener('DOMContentLoaded', () => {
+    // Verificar si estamos en una página de la app (no en index)
+    const appPages = ['home.html', 'appointments.html', 'notifications.html', 'profile.html'];
+    const currentPage = window.location.pathname.split('/').pop();
+
+    if (appPages.includes(currentPage)) {
+        // Inicializar componentes comunes
+        UI.initSidebar();
+        UI.initModals();
+        UI.updateNotificationBadge();
+
+        // Actualizar badge cada 60 segundos
+        setInterval(() => {
+            UI.updateNotificationBadge();
+        }, 60000);
+    }
+});
+
+// Exportar para uso global
+window.UI = UI;

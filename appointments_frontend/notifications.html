@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificaciones - Citas App</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="app-page">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="Menú">
+                <span class="hamburger"></span>
+            </button>
+            <div class="logo">
+                <h1>📅 Citas App</h1>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="userName" class="user-name"></span>
+            <button id="logoutBtn" class="btn btn-outline-sm">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Inicio</span>
+            </a>
+            <a href="appointments.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Citas</span>
+            </a>
+            <a href="notifications.html" class="nav-item active">
+                <span class="nav-icon">🔔</span>
+                <span class="nav-text">Notificaciones</span>
+                <span id="notificationBadge" class="badge"></span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Perfil</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h2 class="page-title">Notificaciones</h2>
+                <button id="markAllReadBtn" class="btn btn-outline">
+                    ✓ Marcar todas como leídas
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="notification-filters">
+                <button class="filter-btn active" data-filter="all">
+                    Todas <span id="allCount" class="count-badge">0</span>
+                </button>
+                <button class="filter-btn" data-filter="unread">
+                    No leídas <span id="unreadCount" class="count-badge">0</span>
+                </button>
+                <button class="filter-btn" data-filter="admin">
+                    De administrador <span id="adminCount" class="count-badge">0</span>
+                </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="notificationsLoading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Cargando notificaciones...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="notificationsEmpty" class="empty-state" style="display: none;">
+                <div class="empty-icon">🔕</div>
+                <h4>No hay notificaciones</h4>
+                <p>No tienes notificaciones en este momento</p>
+            </div>
+
+            <!-- Notifications List -->
+            <div id="notificationsList" class="notifications-list" style="display: none;"></div>
+        </div>
+    </main>
+
+    <!-- Modal Notification Details -->
+    <div id="notificationDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="notificationDetailModal">&times;</span>
+            <h2 class="modal-title">Detalle de Notificación</h2>
+            <div id="notificationDetailContent" class="notification-detail-content"></div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" data-modal="notificationDetailModal">Cerrar</button>
+                <button id="goToAppointmentBtn" class="btn btn-primary" style="display: none;">
+                    Ver Cita
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Delete Confirmation -->
+    <div id="deleteNotificationModal" class="modal">
+        <div class="modal-content modal-small">
+            <span class="modal-close" data-modal="deleteNotificationModal">&times;</span>
+            <h2 class="modal-title">Confirmar Eliminación</h2>
+            <input type="hidden" id="deleteNotificationId">
+            <p class="modal-text">¿Estás seguro de eliminar esta notificación?</p>
+            <div id="deleteNotificationError" class="error-message"></div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" data-modal="deleteNotificationModal">Cancelar</button>
+                <button id="confirmDeleteNotificationBtn" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/notifications.js"></script>
+</body>
+</html>

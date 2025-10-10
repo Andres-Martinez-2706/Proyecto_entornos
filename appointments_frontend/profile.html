@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Citas App</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="app-page">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="Menú">
+                <span class="hamburger"></span>
+            </button>
+            <div class="logo">
+                <h1>📅 Citas App</h1>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="userName" class="user-name"></span>
+            <button id="logoutBtn" class="btn btn-outline-sm">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Inicio</span>
+            </a>
+            <a href="appointments.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Citas</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <span class="nav-text">Notificaciones</span>
+                <span id="notificationBadge" class="badge"></span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Perfil</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <h2 class="page-title">Mi Perfil</h2>
+
+            <!-- Loading State -->
+            <div id="profileLoading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Cargando información...</p>
+            </div>
+
+            <!-- Profile Content -->
+            <div id="profileContent" style="display: none;">
+                <!-- User Info Card -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <span id="userInitials" class="avatar-initials">U</span>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName" class="profile-name">Usuario</h3>
+                            <p id="profileEmail" class="profile-email">usuario@email.com</p>
+                            <span id="profileRole" class="profile-role badge">Usuario</span>
+                        </div>
+                    </div>
+                    <div class="profile-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Miembro desde:</span>
+                            <span id="memberSince" class="detail-value">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">ID de usuario:</span>
+                            <span id="userId" class="detail-value">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Sections -->
+                <div class="settings-sections">
+                    <!-- Notification Preferences -->
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <h3 class="settings-title">⏰ Preferencias de Notificación</h3>
+                            <p class="settings-description">
+                                Configura cuándo deseas recibir recordatorios de tus citas
+                            </p>
+                        </div>
+                        <div class="settings-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label for="reminderHours" class="setting-label">
+                                        Recordatorio antes de la cita
+                                    </label>
+                                    <p class="setting-help">
+                                        Recibirás un email X horas antes de cada cita (además del recordatorio fijo de 1 día antes)
+                                    </p>
+                                </div>
+                                <div class="setting-control">
+                                    <select id="reminderHours" class="select-input">
+                                        <option value="1">1 hora antes</option>
+                                        <option value="2">2 horas antes</option>
+                                        <option value="3">3 horas antes</option>
+                                        <option value="4">4 horas antes</option>
+                                        <option value="5">5 horas antes</option>
+                                        <option value="6">6 horas antes</option>
+                                    </select>
+                                    <button id="saveReminderBtn" class="btn btn-sm btn-primary">Guardar</button>
+                                </div>
+                            </div>
+                            <div id="reminderSuccess" class="success-message" style="display: none;"></div>
+                            <div id="reminderError" class="error-message"></div>
+                        </div>
+                    </div>
+
+                    <!-- Change Email -->
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <h3 class="settings-title">📧 Cambiar Email</h3>
+                            <p class="settings-description">
+                                Actualiza tu dirección de correo electrónico
+                            </p>
+                        </div>
+                        <div class="settings-content">
+                            <form id="changeEmailForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="newEmail">Nuevo email</label>
+                                    <input type="email" id="newEmail" name="newEmail" required 
+                                           placeholder="nuevo@email.com" autocomplete="email">
+                                </div>
+                                <div id="emailSuccess" class="success-message" style="display: none;"></div>
+                                <div id="emailError" class="error-message"></div>
+                                <button type="submit" class="btn btn-primary">Actualizar Email</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="settings-card">
+                        <div class="settings-header">
+                            <h3 class="settings-title">🔒 Cambiar Contraseña</h3>
+                            <p class="settings-description">
+                                Actualiza tu contraseña de acceso
+                            </p>
+                        </div>
+                        <div class="settings-content">
+                            <form id="changePasswordForm" class="settings-form">
+                                <div class="form-group">
+                                    <label for="currentPassword">Contraseña actual</label>
+                                    <input type="password" id="currentPassword" name="currentPassword" required 
+                                           placeholder="••••••••" autocomplete="current-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">Nueva contraseña</label>
+                                    <input type="password" id="newPassword" name="newPassword" required 
+                                           placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirmar nueva contraseña</label>
+                                    <input type="password" id="confirmPassword" name="confirmPassword" required 
+                                           placeholder="Repite la nueva contraseña" autocomplete="new-password" minlength="6">
+                                </div>
+                                <div id="passwordSuccess" class="success-message" style="display: none;"></div>
+                                <div id="passwordError" class="error-message"></div>
+                                <button type="submit" class="btn btn-primary">Actualizar Contraseña</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone (Delete Account - Optional) -->
+                    <div class="settings-card danger-zone">
+                        <div class="settings-header">
+                            <h3 class="settings-title">⚠️ Zona de Peligro</h3>
+                            <p class="settings-description">
+                                Acciones irreversibles
+                            </p>
+                        </div>
+                        <div class="settings-content">
+                            <div class="danger-info">
+                                <p>Si tienes problemas con tu cuenta o necesitas ayuda, contacta al administrador.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/profile.js"></script>
+</body>
+</html>

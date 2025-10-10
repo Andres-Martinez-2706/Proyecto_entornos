@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Citas App</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="app-page">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="Menú">
+                <span class="hamburger"></span>
+            </button>
+            <div class="logo">
+                <h1>📅 Citas App</h1>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="userName" class="user-name"></span>
+            <button id="logoutBtn" class="btn btn-outline-sm">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="home.html" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Inicio</span>
+            </a>
+            <a href="appointments.html" class="nav-item">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Citas</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <span class="nav-text">Notificaciones</span>
+                <span id="notificationBadge" class="badge"></span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Perfil</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Welcome Section -->
+            <section class="welcome-section">
+                <h2 class="page-title">Bienvenido/a</h2>
+                <div class="info-card">
+                    <h3>Sistema de Gestión de Citas</h3>
+                    <p>
+                        Este sistema te permite organizar y gestionar todas tus citas de manera eficiente. 
+                        Aquí podrás:
+                    </p>
+                    <ul class="features-list">
+                        <li>✅ <strong>Crear y gestionar</strong> tus citas personales</li>
+                        <li>🔔 <strong>Recibir recordatorios automáticos</strong> por email 1 día antes y horas antes de cada cita</li>
+                        <li>📊 <strong>Visualizar</strong> todas tus citas próximas, pasadas y canceladas</li>
+                        <li>⚙️ <strong>Configurar</strong> tus preferencias de notificación (1 a 6 horas antes)</li>
+                        <li>📝 <strong>Ver observaciones</strong> del administrador en tus citas modificadas</li>
+                    </ul>
+                    <p class="info-note">
+                        <strong>Nota:</strong> Las citas se marcarán automáticamente como "Terminadas" después de su fecha de finalización 
+                        si no hay ninguna novedad.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Upcoming Appointments Section -->
+            <section class="upcoming-section">
+                <div class="section-header">
+                    <h3 class="section-title">📆 Citas Próximas (Próximos 7 días)</h3>
+                    <a href="appointments.html" class="btn btn-sm btn-primary">Ver todas</a>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="upcomingLoading" class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Cargando citas...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="upcomingEmpty" class="empty-state" style="display: none;">
+                    <div class="empty-icon">📭</div>
+                    <h4>No tienes citas próximas</h4>
+                    <p>No hay citas programadas para los próximos 7 días</p>
+                    <a href="appointments.html" class="btn btn-primary">Crear nueva cita</a>
+                </div>
+
+                <!-- Appointments List -->
+                <div id="upcomingList" class="appointments-list" style="display: none;"></div>
+            </section>
+
+            <!-- Admin Stats (only for admin) -->
+            <section id="adminStats" class="admin-stats" style="display: none;">
+                <h3 class="section-title">📊 Estadísticas del Sistema</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📅</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalAppointments">0</span>
+                            <span class="stat-label">Citas Totales</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalUsers">0</span>
+                            <span class="stat-label">Usuarios Registrados</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="activeAppointments">0</span>
+                            <span class="stat-label">Citas Activas</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔔</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="pendingNotifications">0</span>
+                            <span class="stat-label">Notificaciones Pendientes</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Overlay for sidebar on mobile -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/appointments.js"></script>
+</body>
+</html>

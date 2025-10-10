@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Citas</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="landing-page">
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <h1>📅 Citas App</h1>
+            </div>
+            <nav class="header-nav">
+                <button id="loginBtn" class="btn btn-outline">Iniciar Sesión</button>
+                <button id="registerBtn" class="btn btn-primary">Registrarse</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h2 class="hero-title">Gestiona tus citas de forma inteligente</h2>
+            <p class="hero-subtitle">
+                Organiza, programa y recibe recordatorios automáticos de todas tus citas en un solo lugar.
+                Nunca más olvides una reunión importante.
+            </p>
+            <div class="hero-actions">
+                <button id="heroRegisterBtn" class="btn btn-primary btn-lg">Comenzar Ahora</button>
+                <button id="heroLoginBtn" class="btn btn-outline btn-lg">Ya tengo cuenta</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h3 class="section-title">¿Por qué elegir Citas App?</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h4>Recordatorios Automáticos</h4>
+                    <p>Recibe notificaciones por email 1 día antes y horas antes de tu cita (configurable de 1 a 6 horas).</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Vista Organizada</h4>
+                    <p>Visualiza todas tus citas próximas, pasadas y canceladas en un solo lugar, con sus respectivas observaciones.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✏️</div>
+                    <h4>Gestión Completa</h4>
+                    <p>Crea, modifica y cancela tus citas fácilmente. Los administradores pueden gestionar todas las citas del sistema.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Seguro y Confiable</h4>
+                    <p>Tus datos están protegidos con autenticación JWT y encriptación de contraseñas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal Login -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="loginModal">&times;</span>
+            <h2 class="modal-title">Iniciar Sesión</h2>
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" name="email" required 
+                           placeholder="tu@email.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" name="password" required 
+                           placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <div id="loginError" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
+            </form>
+            <p class="form-footer">
+                ¿No tienes cuenta? 
+                <a href="#" id="switchToRegister" class="link">Regístrate aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal Register -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="registerModal">&times;</span>
+            <h2 class="modal-title">Crear Cuenta</h2>
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="registerName">Nombre Completo</label>
+                    <input type="text" id="registerName" name="fullName" required 
+                           placeholder="Juan Pérez" autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Correo Electrónico</label>
+                    <input type="email" id="registerEmail" name="email" required 
+                           placeholder="tu@email.com" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña</label>
+                    <input type="password" id="registerPassword" name="password" required 
+                           placeholder="Mínimo 6 caracteres" autocomplete="new-password" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="registerPasswordConfirm">Confirmar Contraseña</label>
+                    <input type="password" id="registerPasswordConfirm" name="passwordConfirm" required 
+                           placeholder="Repite tu contraseña" autocomplete="new-password" minlength="6">
+                </div>
+                <div id="registerError" class="error-message"></div>
+                <button type="submit" class="btn btn-primary btn-block">Crear Cuenta</button>
+            </form>
+            <p class="form-footer">
+                ¿Ya tienes cuenta? 
+                <a href="#" id="switchToLogin" class="link">Inicia sesión aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Citas App. Sistema de gestión de citas inteligente.</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

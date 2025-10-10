@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas - Citas App</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="app-page">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="Menú">
+                <span class="hamburger"></span>
+            </button>
+            <div class="logo">
+                <h1>📅 Citas App</h1>
+            </div>
+        </div>
+        <div class="header-right">
+            <span id="userName" class="user-name"></span>
+            <button id="logoutBtn" class="btn btn-outline-sm">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <nav class="sidebar-nav">
+            <a href="home.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Inicio</span>
+            </a>
+            <a href="appointments.html" class="nav-item active">
+                <span class="nav-icon">📅</span>
+                <span class="nav-text">Citas</span>
+            </a>
+            <a href="notifications.html" class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <span class="nav-text">Notificaciones</span>
+                <span id="notificationBadge" class="badge"></span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <span class="nav-icon">👤</span>
+                <span class="nav-text">Perfil</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h2 class="page-title">Mis Citas</h2>
+                <button id="createAppointmentBtn" class="btn btn-primary">
+                    <span>➕</span> Nueva Cita
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <label for="statusFilter">Estado:</label>
+                    <select id="statusFilter" class="filter-select">
+                        <option value="all">Todas</option>
+                        <option value="Pendiente" selected>Pendiente</option>
+                        <option value="Confirmada">Confirmada</option>
+                        <option value="Terminada">Terminada</option>
+                        <option value="Cancelada">Cancelada</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>
+                        <input type="checkbox" id="includeDeletedFilter" checked>
+                        Incluir citas eliminadas
+                    </label>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="appointmentsLoading" class="loading-state">
+                <div class="spinner"></div>
+                <p>Cargando citas...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="appointmentsEmpty" class="empty-state" style="display: none;">
+                <div class="empty-icon">📭</div>
+                <h4>No hay citas</h4>
+                <p>Aún no tienes citas registradas</p>
+                <button class="btn btn-primary" onclick="document.getElementById('createAppointmentBtn').click()">
+                    Crear primera cita
+                </button>
+            </div>
+
+            <!-- Appointments Grid -->
+            <div id="appointmentsGrid" class="appointments-grid" style="display: none;"></div>
+        </div>
+    </main>
+
+    <!-- Modal Create/Edit Appointment -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="modal-close" data-modal="appointmentModal">&times;</span>
+            <h2 id="appointmentModalTitle" class="modal-title">Nueva Cita</h2>
+            <form id="appointmentForm" class="form">
+                <input type="hidden" id="appointmentId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="appointmentTitle">Título *</label>
+                        <input type="text" id="appointmentTitle" name="title" required 
+                               placeholder="Ej: Reunión importante" maxlength="200">
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentCategory">Categoría</label>
+                        <select id="appointmentCategory" name="categoryId">
+                            <option value="">Sin categoría</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="appointmentDescription">Descripción</label>
+                    <textarea id="appointmentDescription" name="description" rows="3" 
+                              placeholder="Detalles adicionales de la cita"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="appointmentDate">Fecha *</label>
+                        <input type="date" id="appointmentDate" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentStartTime">Hora inicio *</label>
+                        <input type="time" id="appointmentStartTime" name="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="appointmentEndTime">Hora fin *</label>
+                        <input type="time" id="appointmentEndTime" name="endTime" required>
+                    </div>
+                </div>
+
+                <div id="appointmentError" class="error-message"></div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" data-modal="appointmentModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Edit by Admin -->
+    <div id="adminEditModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="modal-close" data-modal="adminEditModal">&times;</span>
+            <h2 class="modal-title">Modificar Cita (Admin)</h2>
+            <form id="adminEditForm" class="form">
+                <input type="hidden" id="adminEditId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="adminEditTitle">Título *</label>
+                        <input type="text" id="adminEditTitle" name="title" required maxlength="200">
+                    </div>
+                    <div class="form-group">
+                        <label for="adminEditCategory">Categoría</label>
+                        <select id="adminEditCategory" name="categoryId">
+                            <option value="">Sin categoría</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminEditDescription">Descripción</label>
+                    <textarea id="adminEditDescription" name="description" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="adminEditDate">Fecha *</label>
+                        <input type="date" id="adminEditDate" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminEditStartTime">Hora inicio *</label>
+                        <input type="time" id="adminEditStartTime" name="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminEditEndTime">Hora fin *</label>
+                        <input type="time" id="adminEditEndTime" name="endTime" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="adminObservation">Observación del administrador *</label>
+                    <textarea id="adminObservation" name="adminObservation" rows="3" required
+                              placeholder="Motivo de la modificación"></textarea>
+                </div>
+
+                <div id="adminEditError" class="error-message"></div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" data-modal="adminEditModal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Delete Confirmation -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content modal-small">
+            <span class="modal-close" data-modal="deleteModal">&times;</span>
+            <h2 class="modal-title">Confirmar Eliminación</h2>
+            <input type="hidden" id="deleteAppointmentId">
+            <p id="deleteMessage" class="modal-text">¿Estás seguro de eliminar esta cita?</p>
+            
+            <!-- Admin observation (only for admin) -->
+            <div id="deleteObservationGroup" class="form-group" style="display: none;">
+                <label for="deleteObservation">Motivo de cancelación *</label>
+                <textarea id="deleteObservation" rows="3" required
+                          placeholder="Explica el motivo de la cancelación"></textarea>
+            </div>
+            
+            <div id="deleteError" class="error-message"></div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline" data-modal="deleteModal">Cancelar</button>
+                <button id="confirmDeleteBtn" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal View Details -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" data-modal="detailsModal">&times;</span>
+            <h2 class="modal-title">Detalles de la Cita</h2>
+            <div id="detailsContent" class="details-content"></div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" data-modal="detailsModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/appointments.js"></script>
+</body>
+</html>

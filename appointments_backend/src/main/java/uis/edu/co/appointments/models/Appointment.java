@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,10 +36,12 @@ public class Appointment {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"appointments", "passwordHash"})
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
+    @JsonIgnoreProperties({"appointments"})
     private Category category;
 
     @NotBlank(message = "El título es obligatorio")
@@ -71,6 +75,7 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "cancelled_by")
+    @JsonIgnoreProperties({"appointments", "passwordHash"})
     private User cancelledBy;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -80,6 +85,7 @@ public class Appointment {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @OneToMany(mappedBy = "appointment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"appointment", "user"})
     private List<Notification> notifications;
 
     @PrePersist
