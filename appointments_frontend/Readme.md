@@ -100,6 +100,7 @@ API.getAppointments(true)
 - **Modal Detalles**: Vista completa de la cita
 
 #### Funcionalidad:
+
 - **Usuarios**:
   - Ver solo sus citas
   - Crear, editar, eliminar propias citas
