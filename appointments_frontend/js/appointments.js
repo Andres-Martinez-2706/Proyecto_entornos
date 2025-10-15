@@ -163,6 +163,7 @@ const Appointments = {
     async loadCategories() {
         try {
             this.categories = await API.getCategories();
+            console.log('Categorías cargadas:', this.categories);
             this.populateCategorySelects();
         } catch (error) {
             console.error('Error al cargar categorías:', error);
@@ -180,6 +181,9 @@ const Appointments = {
             const select = document.getElementById(selectId);
             if (!select) return;
 
+            // Guardar valor actual
+            const currentValue = select.value;
+
             // Limpiar opciones existentes (excepto la primera)
             while (select.options.length > 1) {
                 select.remove(1);
@@ -192,7 +196,19 @@ const Appointments = {
                 option.textContent = cat.name;
                 select.appendChild(option);
             });
+
+            // Restaurar valor si existe
+            if (currentValue) {
+                select.value = currentValue;
+            }
         });
+    },
+
+    /**
+     * Recargar categorías (llamar desde otras páginas si es necesario)
+     */
+    async reloadCategories() {
+        await this.loadCategories();
     },
 
     /**

@@ -167,6 +167,55 @@ API.getAppointments(true)
 
 ---
 
+### 6. **categories.html** - Gestión de Categorías (Solo Admin)
+
+#### Secciones:
+- **Lista de Categorías**: Cards con nombre y descripción
+- **Crear/Editar**: Modal con formulario
+- **Eliminar**: Confirmación con validación de uso
+- **Detalles**: Vista completa con estadísticas de uso
+
+#### Funcionalidad:
+- **Solo para Administradores**: Redirección automática si no es admin
+- **CRUD Completo**:
+  - Crear categorías nuevas
+  - Editar nombre y descripción
+  - Eliminar (solo si no están en uso)
+  - Ver detalles y estadísticas
+- **Protección**: No se pueden eliminar categorías con citas asociadas
+- **Estadísticas**: Muestra cantidad de citas por categoría
+
+#### Validaciones:
+- Nombre obligatorio (máx. 100 caracteres)
+- Descripción opcional
+- Verificación de uso antes de eliminar
+- Mensajes de error descriptivos
+
+#### API Calls:
+```javascript
+// Listar categorías
+API.getCategories()
+
+// Crear
+API.createCategory({ name, description })
+
+// Editar
+API.updateCategory(id, { name, description })
+
+// Eliminar (con validación)
+API.deleteCategory(id)
+
+// Ver detalles
+API.getCategoryById(id)
+```
+
+#### Acceso:
+- **Ruta**: `/categories.html`
+- **Requisitos**: Usuario autenticado con rol `admin`
+- **Navegación**: Visible solo para admin en el sidebar
+
+---
+
 ## 🔧 Módulos JavaScript
 
 ### 1. **api.js** - Cliente API

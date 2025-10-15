@@ -297,7 +297,7 @@ if (window.location.pathname.endsWith('index.html') || window.location.pathname 
 
 // ==================== EVENT LISTENERS PARA PÁGINAS DE APP ====================
 // Estas se ejecutan en todas las páginas excepto index.html
-const appPages = ['home.html', 'appointments.html', 'notifications.html', 'profile.html'];
+const appPages = ['home.html', 'appointments.html', 'notifications.html', 'profile.html', 'categories.html'];
 const currentPage = window.location.pathname.split('/').pop();
 
 if (appPages.includes(currentPage)) {
