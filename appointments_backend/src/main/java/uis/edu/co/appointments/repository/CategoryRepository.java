@@ -22,4 +22,5 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query("SELECT COUNT(a) FROM Appointment a WHERE a.category.id = :categoryId AND a.deleted = false")
     long countAppointmentsByCategoryId(@Param("categoryId") Long categoryId);
+
 }
