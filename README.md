@@ -10,7 +10,7 @@ Este proyecto implementa el **backend y frontend de un sistema de gestión de ci
 
 ## 💾 **Imagen del esquma inicial de la Base de Datos**
 
-![Base_Datos](neondb-db.jpeg)
+![Base_Datos](images/neondb-db.jpeg)
 
 ---
 
@@ -205,7 +205,9 @@ Ver documentación completa de endpoints en [Backend README](./appointments_back
 
 ## 🎨 Capturas de Pantalla
 
-*(Agregar capturas del sistema)*
+![inicio](images/index.png)
+![citas](images/appointments.png)
+![perfil](images/profile.png)
 
 ---
 
