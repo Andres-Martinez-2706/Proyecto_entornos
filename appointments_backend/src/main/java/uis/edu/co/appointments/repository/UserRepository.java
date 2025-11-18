@@ -3,6 +3,8 @@ package uis.edu.co.appointments.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -50,4 +52,35 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.role.name = :roleName")
     long countByRoleName(@Param("roleName") String roleName);
+
+    // Operarios activos
+    @Query("SELECT u FROM User u WHERE u.role.name = 'OPERARIO' AND u.active = true")
+    List<User> findActiveOperators();
+    
+    // Operarios por categoría
+    @Query("SELECT u FROM User u JOIN u.operatorCategories c " +
+           "WHERE c.id = :categoryId AND u.active = true AND u.role.name = 'OPERARIO'")
+    List<User> findActiveOperatorsByCategory(@Param("categoryId") Long categoryId);
+    
+    // Verificar si usuario es operario
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.id = :userId " +
+           "AND u.role.name = 'OPERARIO'")
+    boolean isOperator(@Param("userId") Long userId);
+
+     /**
+     * Búsqueda y paginación de usuarios
+     */
+    @Query("SELECT u FROM User u WHERE " +
+           "(:query IS NULL OR " +
+           " LOWER(u.fullName) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           " LOWER(u.email) LIKE LOWER(CONCAT('%', :query, '%'))) " +
+           "AND (:roleName IS NULL OR u.role.name = :roleName) " +
+           "AND (:active IS NULL OR u.active = :active)")
+    Page<User> searchUsers(
+        @Param("query") String query,
+        @Param("roleName") String roleName,
+        @Param("active") Boolean active,
+        Pageable pageable
+    );
+    long countByActive(Boolean active);
 }

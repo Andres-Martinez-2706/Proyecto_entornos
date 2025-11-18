@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Nueva Cita Asignada</title>
+  </head>
+  <body style="font-family: 'Segoe UI', Arial, sans-serif; background:#f7f9fc; margin:0; padding:20px;">
+    <div style="max-width:600px; margin: auto;">
+      <div style="background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <div style="background:#3b82f6; color:#fff; padding:16px; text-align:center;">
+          <h2 style="margin:0;">👨‍⚕️ Nueva Cita Asignada</h2>
+        </div>
+        
+        <!-- Body -->
+        <div style="padding:18px; color:#333;">
+          <p>Hola <strong th:text="${operatorName}">Operario</strong>,</p>
+          <p style="margin-top:8px;">Se te ha asignado una nueva cita:</p>
+          
+          <table style="width:100%; margin-top:12px; border-collapse:collapse;">
+            <tr>
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Título de la cita</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${appointmentTitle}">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Usuario</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${userName}">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Fecha</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${date}">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Hora</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${time}">-</td>
+            </tr>
+            <tr th:if="${category != null}">
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Categoría</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${category}">-</td>
+            </tr>
+            <tr th:if="${description != null and !description.isEmpty()}">
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Descripción</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${description}">-</td>
+            </tr>
+          </table>
+          
+          <div style="background:#dbeafe; border-left:4px solid #3b82f6; padding:12px; margin-top:16px; border-radius:4px;">
+            <p style="margin:0; color:#1e40af; font-size:14px;">
+              <strong>📋 Recordatorio:</strong> Recuerda completar el registro de esta cita después de atenderla, 
+              indicando si el usuario asistió y agregando tus observaciones.
+            </p>
+          </div>
+          
+          <p style="margin-top:14px; color:#666; font-size:13px;">
+            Puedes ver los detalles completos en el sistema.
+          </p>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background:#f1f5f9; padding:10px; text-align:center; color:#6b7280; font-size:12px;">
+          © 2025 Sistema de Citas
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

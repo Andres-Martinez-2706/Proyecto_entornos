@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,6 +46,40 @@ public class Appointment {
     @JsonIgnoreProperties({"appointments"})
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "operator_id")
+    @JsonIgnoreProperties({"appointments", "passwordHash", "operatorSchedules", "operatorCategories"})
+    private User operator;
+
+    @Column(name = "duration_minutes", nullable = false)
+    private Integer durationMinutes = 60;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    private AppointmentStatus status = AppointmentStatus.SCHEDULED;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "attendance_status", length = 20)
+    private AttendanceStatus attendanceStatus = AttendanceStatus.PENDING;
+
+    @Column(name = "operator_observation", columnDefinition = "TEXT")
+    private String operatorObservation;
+
+    @Column(name = "operator_rating")
+    private Integer operatorRating;
+
+    @Column(name = "user_observation", columnDefinition = "TEXT")
+    private String userObservation;
+
+    @Column(name = "user_rating")
+    private Integer userRating;
+
+    @Column(name = "completed_by_operator")
+    private Boolean completedByOperator = false;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     @NotBlank(message = "El título es obligatorio")
     @Column(nullable = false, length = 200)
     private String title;
@@ -61,8 +97,6 @@ public class Appointment {
     @Column(name = "end_time")
     private LocalTime endTime;
 
-    @Column(nullable = false, length = 50)
-    private String status = "Pendiente"; // Pendiente, Confirmada, Cancelada, Terminada
 
     @Column(name = "admin_observation", columnDefinition = "TEXT")
     private String adminObservation;
@@ -73,10 +107,7 @@ public class Appointment {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "cancelled_by")
-    @JsonIgnoreProperties({"appointments", "passwordHash"})
-    private User cancelledBy;
+
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();

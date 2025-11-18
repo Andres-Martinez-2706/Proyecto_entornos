@@ -7,7 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import uis.edu.co.appointments.dto.ApiResponse;
 import uis.edu.co.appointments.models.Notification;
@@ -15,6 +24,7 @@ import uis.edu.co.appointments.security.UserDetailsImpl;
 import uis.edu.co.appointments.service.NotificationService;
 
 @RestController
+//@PreAuthorize("hasAuthority('ADMIN')")
 @RequestMapping("/api/notifications")
 public class NotificationController {
 
@@ -30,6 +40,7 @@ public class NotificationController {
      * - Admin: ve todas (para debug)
      */
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<Notification>> getAllNotifications(
             Authentication authentication,
             @RequestParam(required = false) Boolean unreadOnly) {
@@ -116,7 +127,7 @@ public class NotificationController {
      * Crear notificación (solo admin - para testing o casos especiales)
      */
     @PostMapping
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> createNotification(@RequestBody Notification notification) {
         try {
             Notification saved = notificationService.save(notification);
@@ -132,7 +143,7 @@ public class NotificationController {
      * Actualizar notificación (solo admin)
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> updateNotification(
             @PathVariable Long id,
             @RequestBody Notification notification) {
@@ -259,6 +270,7 @@ public class NotificationController {
             this.count = count;
         }
 
+        @SuppressWarnings("unused")
         public long getCount() {
             return count;
         }

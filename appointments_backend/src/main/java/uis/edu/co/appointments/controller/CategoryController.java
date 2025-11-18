@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -15,10 +16,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import uis.edu.co.appointments.models.Category;
 import uis.edu.co.appointments.dto.ApiResponse;
 import uis.edu.co.appointments.repository.CategoryRepository;
 import uis.edu.co.appointments.service.CategoryService;
+import uis.edu.co.appointments.dto.UpdateDurationsRequest;
+import uis.edu.co.appointments.dto.AssignCategoriesRequest;
+import uis.edu.co.appointments.models.User;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -55,7 +60,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
         try {
             // Verificar si la categoría está en uso
@@ -76,5 +81,71 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("Error al eliminar categoría: " + e.getMessage()));
         }
+    }
+    /**
+     * Actualizar duraciones permitidas de una categoría
+     */
+    @PatchMapping("/{id}/durations")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> updateAllowedDurations(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateDurationsRequest request) {
+        
+        try {
+            categoryService.updateAllowedDurations(id, request.getAllowedDurations());
+            
+            return ResponseEntity.ok(
+                ApiResponse.success("Duraciones actualizadas exitosamente")
+            );
+            
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Error: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Obtener duraciones permitidas de una categoría
+     */
+    @GetMapping("/{id}/durations")
+    public ResponseEntity<List<Integer>> getAllowedDurations(@PathVariable Long id) {
+        List<Integer> durations = categoryService.getAllowedDurations(id);
+        return ResponseEntity.ok(durations);
+    }
+
+    /**
+     * Asignar operarios a una categoría
+     */
+    @PatchMapping("/{id}/operators")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> assignOperators(
+            @PathVariable Long id,
+            @Valid @RequestBody AssignCategoriesRequest request) {
+        
+        try {
+            // Reutilizamos AssignCategoriesRequest pero aquí son operatorIds
+            categoryService.assignOperators(id, request.getCategoryIds());
+            
+            return ResponseEntity.ok(
+                ApiResponse.success("Operarios asignados exitosamente")
+            );
+            
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Error: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Obtener operarios de una categoría
+     */
+    @GetMapping("/{id}/operators")
+    public ResponseEntity<List<User>> getCategoryOperators(@PathVariable Long id) {
+        List<User> operators = categoryService.getOperatorsByCategory(id);
+        return ResponseEntity.ok(operators);
     }
 }

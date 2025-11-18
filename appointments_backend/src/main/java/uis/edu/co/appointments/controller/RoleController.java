@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import uis.edu.co.appointments.models.Role;
 import uis.edu.co.appointments.service.RoleService;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/roles")
+@PreAuthorize("hasAuthority('ADMIN')")
 public class RoleController {
 
     private final RoleService roleService;

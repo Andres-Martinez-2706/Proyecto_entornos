@@ -1,16 +1,24 @@
 package uis.edu.co.appointments.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import uis.edu.co.appointments.dto.NotificationPreferencesRequest;
+import uis.edu.co.appointments.models.Category;
 import uis.edu.co.appointments.models.Role;
 import uis.edu.co.appointments.models.User;
+import uis.edu.co.appointments.repository.AppointmentRepository;
+import uis.edu.co.appointments.repository.CategoryRepository;
 import uis.edu.co.appointments.repository.RoleRepository;
 import uis.edu.co.appointments.repository.UserRepository;
 
@@ -22,13 +30,20 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
+    private final AppointmentRepository appointmentRepository;
 
+    // Constructor final:
     public UserService(UserRepository userRepository,
                        RoleRepository roleRepository,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       CategoryRepository categoryRepository,
+                       AppointmentRepository appointmentRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
+        this.categoryRepository = categoryRepository;
+        this.appointmentRepository = appointmentRepository;
     }
 
     public List<User> findAll() {
@@ -72,15 +87,13 @@ public class UserService {
             throw new IllegalArgumentException("El correo ya está en uso");
         }
 
-        // Buscar rol por nombre (debe existir en la tabla roles)
-        Role defaultRole = roleRepository.findByName("usuario")
-                .orElseThrow(() -> new IllegalStateException("Rol por defecto 'usuario' no encontrado. Ejecuta seed de roles."));
+        // CAMBIAR de "usuario" a "USUARIO"
+        Role defaultRole = roleRepository.findByName("USUARIO")
+                .orElseThrow(() -> new IllegalStateException("Rol 'USUARIO' no encontrado"));
 
-        // Hashear la contraseña (user.passwordHash contiene la contraseña en texto plano al registrar)
         user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
         user.setRole(defaultRole);
 
-        // Establecer valor por defecto de reminderHours si no viene
         if (user.getReminderHours() == null) {
             user.setReminderHours(1);
         }
@@ -173,14 +186,11 @@ public class UserService {
      * Obtener usuarios regulares (no admins)
      */
     public List<User> findAllRegularUsers() {
-        return userRepository.findAllRegularUsers();
+        return userRepository.findByRoleName("USUARIO"); // Cambiar de "usuario"
     }
 
-    /**
-     * Obtener administradores
-     */
     public List<User> findAllAdmins() {
-        return userRepository.findAllAdmins();
+        return userRepository.findByRoleName("ADMIN"); // Cambiar de "admin"
     }
 
     /**
@@ -189,15 +199,7 @@ public class UserService {
     public List<User> findByRoleName(String roleName) {
         return userRepository.findByRoleName(roleName);
     }
-
-    /**
-     * Verificar si un usuario es administrador
-     */
-    public boolean isAdmin(Long userId) {
-        return userRepository.findById(userId)
-                .map(user -> user.getRole() != null && "admin".equalsIgnoreCase(user.getRole().getName()))
-                .orElse(false);
-    }
+    
 
     /**
      * Obtener estadísticas de usuarios
@@ -225,5 +227,288 @@ public class UserService {
         public long getTotalUsers() { return totalUsers; }
         public long getRegularUsers() { return regularUsers; }
         public long getAdmins() { return admins; }
+    }
+    /**
+     * Obtener operarios activos
+     */
+    public List<User> getActiveOperators() {
+        return userRepository.findActiveOperators();
+    }
+
+    /**
+     * Obtener operarios por categoría
+     */
+    public List<User> getOperatorsByCategory(Long categoryId) {
+        return userRepository.findActiveOperatorsByCategory(categoryId);
+    }
+
+    /**
+     * Asignar categorías a un operario
+     */
+    @Transactional
+    public void assignCategoriesToOperator(Long operatorId, List<Long> categoryIds) {
+        User operator = userRepository.findById(operatorId)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Verificar que sea operario
+        if (!"OPERARIO".equalsIgnoreCase(operator.getRole().getName())) {
+            throw new IllegalArgumentException("El usuario no es un operario");
+        }
+
+        // Obtener categorías
+        List<Category> categories = categoryRepository.findAllById(categoryIds);
+        
+        if (categories.size() != categoryIds.size()) {
+            throw new IllegalArgumentException("Algunas categorías no existen");
+        }
+
+        // Asignar categorías
+        operator.setOperatorCategories(categories);
+        userRepository.save(operator);
+        
+        logger.info("Categorías asignadas a operario ID: {}, categorías: {}", 
+                   operatorId, categoryIds);
+    }
+
+    /**
+     * Cambiar estado activo/inactivo de usuario
+     */
+    @Transactional
+    public void updateUserActiveStatus(Long userId, boolean active) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        user.setActive(active);
+        userRepository.save(user);
+        
+        logger.info("Estado de usuario ID: {} cambiado a: {}", userId, active);
+    }
+
+    /**
+     * Actualizar estadísticas de usuario (después de completar cita)
+     */
+    @Transactional
+    public void updateUserStats(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Calcular estadísticas desde las citas
+        List<uis.edu.co.appointments.models.Appointment> appointments = 
+            user.getAppointments().stream()
+                .filter(a -> !a.getDeleted())
+                .filter(a -> a.getStatus() == uis.edu.co.appointments.models.AppointmentStatus.COMPLETED 
+                          || a.getStatus() == uis.edu.co.appointments.models.AppointmentStatus.FAILED)
+                .collect(Collectors.toList());
+
+        int total = appointments.size();
+        long attended = appointments.stream()
+            .filter(a -> a.getAttendanceStatus() == uis.edu.co.appointments.models.AttendanceStatus.ATTENDED)
+            .count();
+        long failed = appointments.stream()
+            .filter(a -> a.getAttendanceStatus() == uis.edu.co.appointments.models.AttendanceStatus.NOT_ATTENDED)
+            .count();
+
+        // Calcular promedio de calificaciones recibidas del operario
+        List<Integer> ratings = appointments.stream()
+            .map(uis.edu.co.appointments.models.Appointment::getOperatorRating)
+            .filter(r -> r != null)
+            .collect(Collectors.toList());
+
+        double avgRating = ratings.isEmpty() ? 0.0 : 
+            ratings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+
+        // Actualizar user
+        user.setTotalAppointments(total);
+        user.setAttendedAppointments((int) attended);
+        user.setFailedAppointments((int) failed);
+        user.setAverageRating(avgRating);
+        user.setTotalRatings(ratings.size());
+
+        userRepository.save(user);
+        
+        logger.info("Estadísticas actualizadas para usuario ID: {}", userId);
+    }
+
+    /**
+     * Actualizar estadísticas de operario (después de recibir calificación)
+     */
+    @Transactional
+    public void updateOperatorStats(Long operatorId) {
+        User operator = userRepository.findById(operatorId)
+            .orElseThrow(() -> new IllegalArgumentException("Operario no encontrado"));
+
+        // Calcular desde appointments donde es operario
+        List<uis.edu.co.appointments.models.Appointment> appointments = 
+            appointmentRepository.findByOperatorIdWithDeletedFilter(operatorId, false).stream()
+                .filter(a -> a.getStatus() == uis.edu.co.appointments.models.AppointmentStatus.COMPLETED)
+                .collect(Collectors.toList());
+
+        int total = appointments.size();
+
+        // Calcular promedio de calificaciones recibidas de usuarios
+        List<Integer> ratings = appointments.stream()
+            .map(uis.edu.co.appointments.models.Appointment::getUserRating)
+            .filter(r -> r != null)
+            .collect(Collectors.toList());
+
+        double avgRating = ratings.isEmpty() ? 0.0 : 
+            ratings.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+
+        // Actualizar operator
+        operator.setTotalAppointments(total);
+        operator.setAverageRating(avgRating);
+        operator.setTotalRatings(ratings.size());
+
+        userRepository.save(operator);
+        
+        logger.info("Estadísticas actualizadas para operario ID: {}", operatorId);
+    }
+
+    /**
+     * Verificar si usuario es operario
+     */
+    public boolean isOperator(Long userId) {
+        return userRepository.isOperator(userId);
+    }
+
+    /**
+     * Verificar si usuario es admin
+     */
+    public boolean isAdmin(Long userId) {
+        return userRepository.findById(userId)
+            .map(user -> user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().getName()))
+            .orElse(false);
+    }
+
+    /**
+     * Verificar si usuario es usuario regular
+     */
+    public boolean isUsuario(Long userId) {
+        return userRepository.findById(userId)
+            .map(user -> user.getRole() != null && "USUARIO".equalsIgnoreCase(user.getRole().getName()))
+            .orElse(false);
+    }
+
+    /**
+     * Cambiar el rol de un usuario
+     */
+    @Transactional
+    public User changeUserRole(Long userId, String roleName) {
+        // Validar que el usuario existe
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        
+        // Validar que el rol existe
+        Role role = roleRepository.findByName(roleName.toUpperCase())
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Rol no encontrado: " + roleName + ". Roles válidos: USUARIO, OPERARIO, ADMIN"
+            ));
+        
+        // Guardar el rol anterior para logging
+        String previousRole = user.getRole() != null ? user.getRole().getName() : "ninguno";
+        
+        // Asignar el nuevo rol
+        user.setRole(role);
+        
+        // Si se está convirtiendo en operario, inicializar listas si es necesario
+        if ("OPERARIO".equalsIgnoreCase(roleName)) {
+            if (user.getOperatorCategories() == null) {
+                user.setOperatorCategories(new ArrayList<>());
+            }
+            if (user.getOperatorSchedules() == null) {
+                user.setOperatorSchedules(new ArrayList<>());
+            }
+        }
+        
+        User updated = userRepository.save(user);
+        
+        logger.info("Rol de usuario ID {} cambiado de {} a {}", 
+                userId, previousRole, roleName);
+        
+        return updated;
+    }
+
+    /**
+     * Crear un nuevo operario
+     */
+    @Transactional
+    public User createOperator(String fullName, String email, String password) {
+        // Validar que el email no exista
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("El correo ya está registrado");
+        }
+        
+        // Obtener el rol de operario
+        Role operatorRole = roleRepository.findByName("OPERARIO")
+            .orElseThrow(() -> new IllegalArgumentException(
+                "Rol OPERARIO no encontrado en la base de datos"
+            ));
+        
+        // Crear el usuario
+        User operator = new User();
+        operator.setFullName(fullName);
+        operator.setEmail(email);
+        operator.setPasswordHash(passwordEncoder.encode(password));
+        operator.setRole(operatorRole);
+        operator.setActive(true);
+        operator.setReminderHours(1);
+        operator.setOperatorCategories(new ArrayList<>());
+        operator.setOperatorSchedules(new ArrayList<>());
+        
+        // Inicializar estadísticas
+        operator.setTotalAppointments(0);
+        operator.setAttendedAppointments(0);
+        operator.setFailedAppointments(0);
+        operator.setAverageRating(0.0);
+        operator.setTotalRatings(0);
+        
+        User saved = userRepository.save(operator);
+        
+        logger.info("Operario creado: ID={}, Email={}", saved.getId(), saved.getEmail());
+        
+        return saved;
+    }
+
+    /**
+     * Búsqueda avanzada de usuarios con paginación
+     */
+    public Page<User> searchUsers(String query, String roleName, Boolean active, Pageable pageable) {
+        return userRepository.searchUsers(query, roleName, active, pageable);
+    }
+    /**
+     * Actualizar todas las preferencias de notificación del usuario
+     */
+    @Transactional
+    public User updateNotificationPreferences(Long userId, NotificationPreferencesRequest request) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        user.setReminderHours(request.getReminderHours());
+        user.setEmailNotificationsEnabled(request.getEmailNotificationsEnabled());
+        user.setInAppNotificationsEnabled(request.getInAppNotificationsEnabled());
+        user.setReminderDayBeforeEnabled(request.getReminderDayBeforeEnabled());
+        user.setReminderHoursBeforeEnabled(request.getReminderHoursBeforeEnabled());
+        
+        if (request.getNotificationTypesEnabled() != null) {
+            user.setNotificationTypesEnabled(request.getNotificationTypesEnabled());
+        }
+
+        User saved = userRepository.save(user);
+        logger.info("Preferencias de notificación actualizadas para usuario ID: {}", userId);
+        
+        return saved;
+    }
+    /**
+     * Contar usuarios por rol
+     */
+    public Long countByRole(String roleName) {
+        return userRepository.countByRoleName(roleName);
+    }
+    
+    /**
+     * Contar usuarios activos
+     */
+    public Long countActiveUsers() {
+        return userRepository.countByActive(true);
     }
 }

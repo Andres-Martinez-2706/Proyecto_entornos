@@ -27,6 +27,12 @@
               <td style="padding:8px; border:1px solid #eee;"><strong>Título</strong></td>
               <td style="padding:8px; border:1px solid #eee;" th:text="${tituloCita}">-</td>
             </tr>
+            <!-- NUEVA FILA PARA OPERARIO -->
+            <tr th:if="${operatorName != null and !operatorName.isEmpty()}">
+              <td style="padding:8px; border:1px solid #eee;"><strong>Operario Asignado</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${operatorName}">-</td>
+            </tr>
+            <!-- FIN NUEVA FILA -->
             <tr th:if="${observacion != null and !observacion.isEmpty()}">
               <td style="padding:8px; border:1px solid #eee;"><strong>Observación</strong></td>
               <td style="padding:8px; border:1px solid #eee;" th:text="${observacion}">-</td>

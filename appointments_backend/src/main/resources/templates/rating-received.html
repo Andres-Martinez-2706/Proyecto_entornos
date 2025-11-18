@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Has Recibido una Calificación</title>
+  </head>
+  <body style="font-family: 'Segoe UI', Arial, sans-serif; background:#f7f9fc; margin:0; padding:20px;">
+    <div style="max-width:600px; margin: auto;">
+      <div style="background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <div style="background:#10b981; color:#fff; padding:16px; text-align:center;">
+          <h2 style="margin:0;">⭐ Nueva Calificación Recibida</h2>
+        </div>
+        
+        <!-- Body -->
+        <div style="padding:18px; color:#333;">
+          <p>Hola <strong th:text="${operatorName}">Operario</strong>,</p>
+          <p style="margin-top:8px;">Has recibido una calificación de un usuario por tu atención.</p>
+          
+          <!-- Rating display -->
+          <div style="background:#d1fae5; border-left:4px solid #10b981; padding:16px; margin-top:16px; border-radius:4px; text-align:center;">
+            <p style="margin:0 0 8px 0; color:#065f46; font-size:14px; font-weight:600;">
+              Calificación recibida
+            </p>
+            <div style="font-size:32px; color:#f59e0b; margin:8px 0;">
+              <span th:each="i : ${#numbers.sequence(1, rating)}">⭐</span>
+              <span th:each="i : ${#numbers.sequence(1, 5 - rating)}" style="color:#d1d5db;">⭐</span>
+            </div>
+            <p style="margin:8px 0 0 0; color:#065f46; font-size:18px; font-weight:700;">
+              <span th:text="${rating}">5</span> / 5 estrellas
+            </p>
+          </div>
+          
+          <!-- Appointment details -->
+          <table style="width:100%; margin-top:16px; border-collapse:collapse;">
+            <tr>
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Cita</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${appointmentTitle}">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Fecha</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${date}">-</td>
+            </tr>
+            <tr>
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb;"><strong>Usuario</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${userName}">-</td>
+            </tr>
+            <tr th:if="${observation != null and !observation.isEmpty()}">
+              <td style="padding:8px; border:1px solid #eee; background:#f9fafb; vertical-align:top;"><strong>Comentario</strong></td>
+              <td style="padding:8px; border:1px solid #eee;" th:text="${observation}">-</td>
+            </tr>
+          </table>
+          
+          <p style="margin-top:16px; color:#10b981; font-size:14px; font-weight:600; text-align:center;">
+            ¡Felicidades por tu excelente trabajo! 🎉
+          </p>
+          
+          <p style="margin-top:14px; color:#666; font-size:13px;">
+            Puedes ver todas tus calificaciones y estadísticas en tu perfil del sistema.
+          </p>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background:#f1f5f9; padding:10px; text-align:center; color:#6b7280; font-size:12px;">
+          © 2025 Sistema de Citas
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
