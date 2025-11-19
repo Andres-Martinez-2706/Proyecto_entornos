@@ -33,6 +33,7 @@ import uis.edu.co.appointments.dto.NotificationPreferencesRequest;
 import uis.edu.co.appointments.dto.UpdateEmailRequest;
 import uis.edu.co.appointments.dto.UpdateNotificationPreferenceRequest;
 import uis.edu.co.appointments.dto.UpdatePasswordRequest;
+import uis.edu.co.appointments.dto.UpdateUserRequest;
 import uis.edu.co.appointments.models.User;
 import uis.edu.co.appointments.security.UserDetailsImpl;
 import uis.edu.co.appointments.service.UserService;
@@ -117,20 +118,42 @@ public class UserController {
      * Actualizar usuario (solo admin)
      */
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id, 
+            @Valid @RequestBody UpdateUserRequest request) {
+        
         try {
-            if (!userService.findById(id).isPresent()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ApiResponse.error("Usuario no encontrado"));
+            User existingUser = userService.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+            
+            // Actualizar campos básicos
+            existingUser.setFullName(request.getFullName());
+            existingUser.setEmail(request.getEmail());
+            
+            // Actualizar estado activo si se proporciona
+            if (request.getActive() != null) {
+                existingUser.setActive(request.getActive());
             }
             
-            user.setId(id);
-            User updated = userService.save(user);
-            return ResponseEntity.ok(ApiResponse.success("Usuario actualizado", updated));
+            // Actualizar contraseña si se proporciona
+            if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+                userService.updatePasswordAdmin(id, request.getPassword());
+            }
             
-        } catch (Exception e) {
+            // Cambiar rol si se proporciona
+            if (request.getRole() != null && !request.getRole().trim().isEmpty()) {
+                existingUser = userService.changeUserRole(id, request.getRole());
+            } else {
+                existingUser = userService.save(existingUser);
+            }
+            
+            return ResponseEntity.ok(ApiResponse.success("Usuario actualizado", existingUser));
+            
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.error("Error al actualizar usuario: " + e.getMessage()));
         }
     }

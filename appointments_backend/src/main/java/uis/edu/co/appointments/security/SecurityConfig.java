@@ -70,6 +70,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/users/stats/**").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/users/*/categories").hasAnyAuthority("ADMIN", "OPERARIO")
                 .requestMatchers(HttpMethod.PATCH, "/api/users/*/active-status").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/users/*").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/users").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasAuthority("ADMIN")
                 
                 // Listar operarios - todos los autenticados pueden ver
                 .requestMatchers(HttpMethod.GET, "/api/users/operators/**").authenticated()

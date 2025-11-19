@@ -468,16 +468,20 @@ const CategoriesPage = () => {
               </p>
               <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg max-h-32 overflow-y-auto">
                 {selectedDurations.map(duration => (
-                  <Badge
+                  <button
                     key={duration}
-                    variant="primary"
-                    className="cursor-pointer hover:bg-primary-200"
+                    type="button"
                     onClick={() => toggleDuration(duration)}
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-100 text-primary-800 hover:bg-primary-200 transition-colors cursor-pointer"
                   >
-                    {formatDuration(duration)} ✕
-                  </Badge>
+                    {formatDuration(duration)}
+                    <span className="ml-1 font-bold">✕</span>
+                  </button>
                 ))}
               </div>
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Haz clic en una duración para eliminarla
+              </p>
             </div>
           )}
 

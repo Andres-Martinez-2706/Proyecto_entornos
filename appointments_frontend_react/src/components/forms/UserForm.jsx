@@ -28,7 +28,10 @@ const UserForm = ({
         fullName: initialData.fullName || '',
         email: initialData.email || '',
         password: '',
-        role: initialData.role || (isOperatorForm ? ROLES.OPERARIO : ROLES.USUARIO),
+        // ✅ FIX: Extraer el nombre del rol si es objeto
+        role: typeof initialData.role === 'string' 
+          ? initialData.role 
+          : initialData.role?.name || (isOperatorForm ? ROLES.OPERARIO : ROLES.USUARIO),
       });
     }
   }, [initialData, isOperatorForm]);

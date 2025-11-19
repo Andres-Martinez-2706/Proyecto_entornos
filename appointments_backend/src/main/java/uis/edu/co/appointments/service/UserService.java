@@ -511,4 +511,26 @@ public class UserService {
     public Long countActiveUsers() {
         return userRepository.countByActive(true);
     }
+    /**
+     * Actualizar contraseña (solo admin, sin validar contraseña actual)
+     */
+    @Transactional
+    public User updatePasswordAdmin(Long userId, String newPassword) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        
+        // Validar nueva contraseña
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña no puede estar vacía");
+        }
+        
+        if (newPassword.length() < 6) {
+            throw new IllegalArgumentException("La contraseña debe tener al menos 6 caracteres");
+        }
+        
+        // Actualizar contraseña
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        
+        return userRepository.save(user);
+    }
 }
